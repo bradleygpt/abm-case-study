@@ -39,18 +39,18 @@ const sourceClosedDeals = [
 ];
 
 const stageConversionRaw = [
-  { stage:"S0\u2192S1", tier:"Diamond", segment:"Enterprise", rate:91 },
-  { stage:"S0\u2192S1", tier:"Diamond", segment:"Mid-Market", rate:91 },
-  { stage:"S0\u2192S1", tier:"Platinum", segment:"Enterprise", rate:84 },
-  { stage:"S0\u2192S1", tier:"Platinum", segment:"Mid-Market", rate:84 },
-  { stage:"S0\u2192S1", tier:"Non-Target", segment:"Enterprise", rate:87 },
-  { stage:"S0\u2192S1", tier:"Non-Target", segment:"Mid-Market", rate:87 },
-  { stage:"S1\u2192S2+", tier:"Diamond", segment:"Enterprise", rate:37 },
-  { stage:"S1\u2192S2+", tier:"Diamond", segment:"Mid-Market", rate:37 },
-  { stage:"S1\u2192S2+", tier:"Platinum", segment:"Enterprise", rate:34 },
-  { stage:"S1\u2192S2+", tier:"Platinum", segment:"Mid-Market", rate:34 },
-  { stage:"S1\u2192S2+", tier:"Non-Target", segment:"Enterprise", rate:45 },
-  { stage:"S1\u2192S2+", tier:"Non-Target", segment:"Mid-Market", rate:45 },
+  { stage:"S0→S1", tier:"Diamond", segment:"Enterprise", rate:91 },
+  { stage:"S0→S1", tier:"Diamond", segment:"Mid-Market", rate:91 },
+  { stage:"S0→S1", tier:"Platinum", segment:"Enterprise", rate:84 },
+  { stage:"S0→S1", tier:"Platinum", segment:"Mid-Market", rate:84 },
+  { stage:"S0→S1", tier:"Non-Target", segment:"Enterprise", rate:87 },
+  { stage:"S0→S1", tier:"Non-Target", segment:"Mid-Market", rate:87 },
+  { stage:"S1→S2+", tier:"Diamond", segment:"Enterprise", rate:37 },
+  { stage:"S1→S2+", tier:"Diamond", segment:"Mid-Market", rate:37 },
+  { stage:"S1→S2+", tier:"Platinum", segment:"Enterprise", rate:34 },
+  { stage:"S1→S2+", tier:"Platinum", segment:"Mid-Market", rate:34 },
+  { stage:"S1→S2+", tier:"Non-Target", segment:"Enterprise", rate:45 },
+  { stage:"S1→S2+", tier:"Non-Target", segment:"Mid-Market", rate:45 },
 ];
 
 const repDataRaw = [
@@ -115,12 +115,12 @@ const TierDot = ({ tier }) => (<span style={{ display:"inline-flex", alignItems:
 const TT = ({ active, payload }) => { if (!active||!payload?.length) return null; return (<div style={{ background:"#1a2030", border:`1px solid ${C.border}`, borderRadius:8, padding:"8px 12px", fontSize:12, maxWidth:220 }}>{payload.map((p,i)=>(<div key={i} style={{ color:p.color||C.text, display:"flex", justifyContent:"space-between", gap:12 }}><span style={{ color:C.muted }}>{p.name}</span><span style={{ fontWeight:600 }}>{typeof p.value==="number"&&p.value>100?fmtFull(p.value):p.value+(typeof p.value==="number"&&p.value<=100?"%":"")}</span></div>))}</div>); };
 
 const tabs = [
-  { id:"overview", label:"Overview", icon:"\ud83d\udcca" },
-  { id:"targeting", label:"Targeting", icon:"\ud83c\udfaf" },
-  { id:"source", label:"Source Channel", icon:"\ud83d\udce1" },
-  { id:"funnel", label:"Funnel Leakage", icon:"\ud83d\udd17" },
-  { id:"reps", label:"Rep Performance", icon:"\ud83d\udc65" },
-  { id:"recs", label:"Recommendations", icon:"\u2705" },
+  { id:"overview", label:"Overview", icon:"📊" },
+  { id:"targeting", label:"Targeting", icon:"🎯" },
+  { id:"source", label:"Source Channel", icon:"📡" },
+  { id:"funnel", label:"Funnel Leakage", icon:"🔗" },
+  { id:"reps", label:"Rep Performance", icon:"👥" },
+  { id:"recs", label:"Recommendations", icon:"✅" },
 ];
 
 export default function Dashboard() {
@@ -154,8 +154,8 @@ export default function Dashboard() {
 
   const stageData = useMemo(() => {
     const segs = seg==="All"?["Enterprise","Mid-Market"]:[seg];
-    return ["S0\u2192S1","S1\u2192S2+"].map(stage => {
-      const obj = { stage, benchmark: stage==="S0\u2192S1"?benchmarks.s0s1:benchmarks.s1s2 };
+    return ["S0→S1","S1→S2+"].map(stage => {
+      const obj = { stage, benchmark: stage==="S0→S1"?benchmarks.s0s1:benchmarks.s1s2 };
       ["Diamond","Platinum","Non-Target"].forEach(tier => {
         const m = stageConversionRaw.filter(r => r.stage===stage && r.tier===tier && segs.includes(r.segment));
         obj[tier] = m.length>0?Math.round(m.reduce((a,r)=>a+r.rate,0)/m.length):0;
@@ -201,13 +201,13 @@ export default function Dashboard() {
               <Metric label="Diamond EV/Opp" value={fmtFull(Math.round(diamondEV))} sub={`${Math.round((diamondEV/(diamondEnt?diamondEnt.evBench:15300)-1)*100)}% vs. benchmark`} color={C.green} />
               <Metric label="Platinum EV/Opp" value={fmtFull(Math.round(platEV))} sub={`${Math.round((platEV/(platEnt?platEnt.evBench:15300)-1)*100)}% vs. benchmark`} color={C.red} />
               <Metric label="Stranded MQLs" value="25 accts" sub="~$1.75M unrealized pipeline" color={C.amber} />
-              <Metric label="MQL\u2192Opp Rate" value="22%" sub="vs. 30% pre-ABM benchmark" color={C.red} />
-              <Metric label="SD Out \u2192 Target WR" value="0%" sub="0/13 closed deals" color={C.red} />
+              <Metric label="MQL→Opp Rate" value="22%" sub="vs. 30% pre-ABM benchmark" color={C.red} />
+              <Metric label="SD Out → Target WR" value="0%" sub="0/13 closed deals" color={C.red} />
             </div>
-            <Callout color={C.green} icon="\ud83d\udc8e" title="FINDING: Diamond ABM is delivering" text="Diamond accounts produce a 58% expected value premium over pre-ABM benchmarks, driven by both higher win rates (+3.4pp Enterprise) and 32% larger deal sizes. Diamond Enterprise EV/opp of $24.1K is the strongest cohort in the dataset." />
-            <Callout color={C.red} icon="\u26a0\ufe0f" title="FINDING: Platinum is destroying value" text="Platinum Enterprise EV/opp ($7.8K) is half the pre-ABM benchmark and half what non-targeted accounts produce organically. ABM investment in Platinum is generating negative ROI relative to doing nothing." />
-            <Callout color={C.amber} icon="\ud83d\udd17" title="FINDING: Marketing-to-sales handoff is broken" text="25 target accounts have MQL dates, ABM campaign engagement, and avg 16 touches with zero pipeline. SD Outbound has closed 0/13 target deals. MQL-to-opp conversion is 22% vs. 30% benchmark. These are execution failures, not strategy failures." />
-            <Section title="Expected Value per Opportunity by Cohort" sub="EV = Win Rate \u00d7 ASP. The single best composite measure of ABM targeting quality.">
+            <Callout color={C.green} icon="💎" title="FINDING: Diamond ABM is delivering" text="Diamond accounts produce a 58% expected value premium over pre-ABM benchmarks, driven by both higher win rates (+3.4pp Enterprise) and 32% larger deal sizes. Diamond Enterprise EV/opp of $24.1K is the strongest cohort in the dataset." />
+            <Callout color={C.red} icon="⚠️" title="FINDING: Platinum is destroying value" text="Platinum Enterprise EV/opp ($7.8K) is half the pre-ABM benchmark and half what non-targeted accounts produce organically. ABM investment in Platinum is generating negative ROI relative to doing nothing." />
+            <Callout color={C.amber} icon="🔗" title="FINDING: Marketing-to-sales handoff is broken" text="25 target accounts have MQL dates, ABM campaign engagement, and avg 16 touches with zero pipeline. SD Outbound has closed 0/13 target deals. MQL-to-opp conversion is 22% vs. 30% benchmark. These are execution failures, not strategy failures." />
+            <Section title="Expected Value per Opportunity by Cohort" sub="EV = Win Rate × ASP. The single best composite measure of ABM targeting quality.">
               <Card>
                 <ResponsiveContainer width="100%" height={280}>
                   <BarChart data={evChartData} barCategoryGap="18%">
@@ -222,7 +222,7 @@ export default function Dashboard() {
                 </ResponsiveContainer>
               </Card>
             </Section>
-            <div style={{ fontSize:11, color:C.muted, fontStyle:"italic", textAlign:"center" }}>Small closed-deal samples (n=2\u20138 per cell). Directional, not statistically conclusive. Segment-controlled to avoid mix bias.</div>
+            <div style={{ fontSize:11, color:C.muted, fontStyle:"italic", textAlign:"center" }}>Small closed-deal samples (n=2–8 per cell). Directional, not statistically conclusive. Segment-controlled to avoid mix bias.</div>
           </div>
         )}
 
@@ -232,11 +232,11 @@ export default function Dashboard() {
               <Card style={{ overflow:"auto", padding:0 }}>
                 <table style={{ width:"100%", borderCollapse:"collapse", fontSize:12 }}>
                   <thead><tr style={{ borderBottom:`2px solid ${C.border}` }}>{["Cohort","Segment","Won","Lost","Win Rate","Bench.","ASP","Bench.","EV/Opp","Bench. EV"].map(h=>(<th key={h} style={{ padding:"10px 10px", textAlign:"left", color:C.muted, fontWeight:700, fontSize:10, textTransform:"uppercase", letterSpacing:"0.5px" }}>{h}</th>))}</tr></thead>
-                  <tbody>{winRateTable.map((d,i)=>(<tr key={i} style={{ borderBottom:`1px solid ${C.border}18`, background:d.tier==="Non-Target"?`${C.nonTarget}08`:"transparent" }}><td style={{ padding:"8px 10px" }}><TierDot tier={d.tier} /></td><td style={{ padding:"8px 10px", color:C.muted, fontSize:12 }}>{d.segment}</td><td style={{ padding:"8px 10px", color:C.green, fontWeight:600 }}>{d.won}</td><td style={{ padding:"8px 10px", color:C.red }}>{d.lost}</td><td style={{ padding:"8px 10px", fontWeight:700, color:d.wr>=d.wrBench?C.green:C.red }}>{d.wr}%</td><td style={{ padding:"8px 10px", color:C.muted }}>{d.wrBench}%</td><td style={{ padding:"8px 10px", fontWeight:600, color:d.asp>=d.aspBench?C.green:C.red }}>{d.asp>0?fmt(d.asp):"\u2014"}</td><td style={{ padding:"8px 10px", color:C.muted }}>{fmt(d.aspBench)}</td><td style={{ padding:"8px 10px", fontWeight:800, color:d.ev>=d.evBench?C.green:C.red }}>{d.ev>0?fmtFull(d.ev):"\u2014"}</td><td style={{ padding:"8px 10px", color:C.muted }}>{fmtFull(d.evBench)}</td></tr>))}</tbody>
+                  <tbody>{winRateTable.map((d,i)=>(<tr key={i} style={{ borderBottom:`1px solid ${C.border}18`, background:d.tier==="Non-Target"?`${C.nonTarget}08`:"transparent" }}><td style={{ padding:"8px 10px" }}><TierDot tier={d.tier} /></td><td style={{ padding:"8px 10px", color:C.muted, fontSize:12 }}>{d.segment}</td><td style={{ padding:"8px 10px", color:C.green, fontWeight:600 }}>{d.won}</td><td style={{ padding:"8px 10px", color:C.red }}>{d.lost}</td><td style={{ padding:"8px 10px", fontWeight:700, color:d.wr>=d.wrBench?C.green:C.red }}>{d.wr}%</td><td style={{ padding:"8px 10px", color:C.muted }}>{d.wrBench}%</td><td style={{ padding:"8px 10px", fontWeight:600, color:d.asp>=d.aspBench?C.green:C.red }}>{d.asp>0?fmt(d.asp):"—"}</td><td style={{ padding:"8px 10px", color:C.muted }}>{fmt(d.aspBench)}</td><td style={{ padding:"8px 10px", fontWeight:800, color:d.ev>=d.evBench?C.green:C.red }}>{d.ev>0?fmtFull(d.ev):"—"}</td><td style={{ padding:"8px 10px", color:C.muted }}>{fmtFull(d.evBench)}</td></tr>))}</tbody>
                 </table>
               </Card>
             </Section>
-            <Section title="Stage Conversion vs. Pre-ABM Benchmark" sub="S0\u2192S1 is strong. The breakdown is mid-funnel: S1\u2192S2+ trails the 55% benchmark across all cohorts.">
+            <Section title="Stage Conversion vs. Pre-ABM Benchmark" sub="S0→S1 is strong. The breakdown is mid-funnel: S1→S2+ trails the 55% benchmark across all cohorts.">
               <Card>
                 <ResponsiveContainer width="100%" height={240}>
                   <BarChart data={stageData} barCategoryGap="22%">
@@ -252,29 +252,29 @@ export default function Dashboard() {
                 </ResponsiveContainer>
               </Card>
             </Section>
-            <Callout color={C.amber} icon="\u23f1\ufe0f" title="Sales Cycle Elongation" text="Diamond Enterprise won deals averaged 103 days vs. the 62-day pre-ABM benchmark (66% longer). Platinum Enterprise averaged 106 days. While larger deals naturally take longer, this degree of elongation warrants investigation into whether deal qualification standards, buyer committee dynamics, or sales process has changed alongside the ABM shift." />
+            <Callout color={C.amber} icon="⏱️" title="Sales Cycle Elongation" text="Diamond Enterprise won deals averaged 103 days vs. the 62-day pre-ABM benchmark (66% longer). Platinum Enterprise averaged 106 days. While larger deals naturally take longer, this degree of elongation warrants investigation into whether deal qualification standards, buyer committee dynamics, or sales process has changed alongside the ABM shift." />
           </div>
         )}
 
         {tab === "source" && (
           <div style={{ display:"flex", flexDirection:"column", gap:16 }}>
             <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit, minmax(170px, 1fr))", gap:10 }}>
-              {(()=>{ const tgtBDR=sourceTable[0]?.rows.find(r=>r.source==="BDR Outbound"); const tgtSD=sourceTable[0]?.rows.find(r=>r.source==="SD Outbound"); const ntInb=sourceTable[1]?.rows.find(r=>r.source==="Inbound"); return <><Metric label="BDR \u2192 Target" value={tgtBDR?`${tgtBDR.wr}%`:"\u2014"} sub={tgtBDR?`${tgtBDR.won}/${tgtBDR.total} closed`:""} color={C.green} compact /><Metric label="SD Out \u2192 Target" value={tgtSD?`${tgtSD.wr}%`:"\u2014"} sub={tgtSD?`${tgtSD.won}/${tgtSD.total} closed`:""} color={C.red} compact /><Metric label="Non-Tgt Inbound" value={ntInb?`${ntInb.wr}%`:"\u2014"} sub={ntInb?`${ntInb.won}/${ntInb.total} closed`:""} color={C.green} compact /><Metric label="SD Out Open Pipeline" value="27 deals" sub="At risk if 0% pattern holds" color={C.amber} compact /></>; })()}
+              {(()=>{ const tgtBDR=sourceTable[0]?.rows.find(r=>r.source==="BDR Outbound"); const tgtSD=sourceTable[0]?.rows.find(r=>r.source==="SD Outbound"); const ntInb=sourceTable[1]?.rows.find(r=>r.source==="Inbound"); return <><Metric label="BDR → Target" value={tgtBDR?`${tgtBDR.wr}%`:"—"} sub={tgtBDR?`${tgtBDR.won}/${tgtBDR.total} closed`:""} color={C.green} compact /><Metric label="SD Out → Target" value={tgtSD?`${tgtSD.wr}%`:"—"} sub={tgtSD?`${tgtSD.won}/${tgtSD.total} closed`:""} color={C.red} compact /><Metric label="Non-Tgt Inbound" value={ntInb?`${ntInb.wr}%`:"—"} sub={ntInb?`${ntInb.won}/${ntInb.total} closed`:""} color={C.green} compact /><Metric label="SD Out Open Pipeline" value="27 deals" sub="At risk if 0% pattern holds" color={C.amber} compact /></>; })()}
             </div>
             <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:14 }}>
               {sourceTable.map(({ tierGroup, rows })=>(<Card key={tierGroup}><h4 style={{ margin:"0 0 10px", fontSize:13, fontWeight:700, color:C.muted }}>{tierGroup} Accounts{isFiltered?` (${seg})`:""}</h4><ResponsiveContainer width="100%" height={200}><BarChart data={rows} layout="vertical" barCategoryGap="18%"><CartesianGrid strokeDasharray="3 3" stroke={C.border} horizontal={false} /><XAxis type="number" domain={[0,50]} tick={{ fill:C.muted, fontSize:11 }} tickFormatter={v=>`${v}%`} /><YAxis type="category" dataKey="source" tick={{ fill:C.muted, fontSize:11 }} width={95} /><Tooltip content={<TT />} /><Bar dataKey="wr" name="Win Rate" radius={[0,4,4,0]}>{rows.map((d,i)=><Cell key={i} fill={d.wr===0?C.red:d.wr>=30?C.green:C.amber} />)}</Bar></BarChart></ResponsiveContainer></Card>))}
             </div>
-            <Callout color={C.red} icon="\ud83d\udea8" title="MEMO FINDING: SD Outbound 0% Win Rate on Target Accounts" text="SD Outbound has closed 0 of 13 target-account deals while BDR Outbound closes at 37% on the same accounts. This is not variance. SD-sourced deals likely lack the qualification rigor that BDR process enforces, or SD reps are pursuing off-profile accounts within the target list." />
-            <Callout color={C.green} icon="\ud83d\udca1" title="MEMO FINDING: Non-Target Inbound at 40% WR" text="Non-Target Inbound accounts close at 40% (8/20), nearly double the Mid-Market benchmark. These accounts are self-selecting with high buying intent. Recommendation: profile these 8 wins for firmographic and behavioral patterns to inform ABM list expansion." />
+            <Callout color={C.red} icon="🚨" title="MEMO FINDING: SD Outbound 0% Win Rate on Target Accounts" text="SD Outbound has closed 0 of 13 target-account deals while BDR Outbound closes at 37% on the same accounts. This is not variance. SD-sourced deals likely lack the qualification rigor that BDR process enforces, or SD reps are pursuing off-profile accounts within the target list." />
+            <Callout color={C.green} icon="💡" title="MEMO FINDING: Non-Target Inbound at 40% WR" text="Non-Target Inbound accounts close at 40% (8/20), nearly double the Mid-Market benchmark. These accounts are self-selecting with high buying intent. Recommendation: profile these 8 wins for firmographic and behavioral patterns to inform ABM list expansion." />
           </div>
         )}
 
         {tab === "funnel" && (
           <div style={{ display:"flex", flexDirection:"column", gap:16 }}>
             <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit, minmax(190px, 1fr))", gap:10 }}>
-              <Metric label="Engaged, No Pipeline" value="25 accts" sub="12 Diamond \u00b7 13 Platinum" color={C.amber} />
+              <Metric label="Engaged, No Pipeline" value="25 accts" sub="12 Diamond · 13 Platinum" color={C.amber} />
               <Metric label="Est. Stranded Value" value="~$1.75M" sub="Conservative $70K avg deal" color={C.red} />
-              <Metric label="MQL\u2192Opp Rate" value="22%" sub="vs. 30% benchmark (-8pp)" color={C.red} />
+              <Metric label="MQL→Opp Rate" value="22%" sub="vs. 30% benchmark (-8pp)" color={C.red} />
               <Metric label="Stalled Target Deals" value="34 of 103" sub="33% of open target pipeline" color={C.amber} />
             </div>
             <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:14 }}>
@@ -307,7 +307,7 @@ export default function Dashboard() {
                 </Card>
               </div>
             </div>
-            <Callout color={C.amber} icon="\ud83d\udccb" title="MEMO FINDING: Handoff is the #1 Operational Gap" text="Marketing is generating demand (25 MQLed, campaign-engaged target accounts). Sales is not converting it. This is the single most actionable finding. Institute a 48-hour SLA on target-account MQL follow-up and run a weekly handoff review between marketing and sales leadership." />
+            <Callout color={C.amber} icon="📋" title="MEMO FINDING: Handoff is the #1 Operational Gap" text="Marketing is generating demand (25 MQLed, campaign-engaged target accounts). Sales is not converting it. This is the single most actionable finding. Institute a 48-hour SLA on target-account MQL follow-up and run a weekly handoff review between marketing and sales leadership." />
           </div>
         )}
 
@@ -325,7 +325,7 @@ export default function Dashboard() {
                     <Scatter data={repDataRaw}>{repDataRaw.map((d,i)=>(<Cell key={i} fill={d.wr>=25?C.green:d.wr===0?C.red:d.stalled>=6?C.amber:C.accent} fillOpacity={0.85} />))}</Scatter>
                   </ScatterChart>
                 </ResponsiveContainer>
-                <div style={{ display:"flex", gap:14, justifyContent:"center", marginTop:6 }}>{[{c:C.green,l:"WR \u226525%"},{c:C.amber,l:"High stalls (6+)"},{c:C.red,l:"0% WR"},{c:C.accent,l:"Other"}].map(({c,l})=>(<span key={l} style={{ display:"flex", gap:4, alignItems:"center", fontSize:10, color:C.muted }}><span style={{ width:7, height:7, borderRadius:"50%", background:c }} />{l}</span>))}</div>
+                <div style={{ display:"flex", gap:14, justifyContent:"center", marginTop:6 }}>{[{c:C.green,l:"WR ≥25%"},{c:C.amber,l:"High stalls (6+)"},{c:C.red,l:"0% WR"},{c:C.accent,l:"Other"}].map(({c,l})=>(<span key={l} style={{ display:"flex", gap:4, alignItems:"center", fontSize:10, color:C.muted }}><span style={{ width:7, height:7, borderRadius:"50%", background:c }} />{l}</span>))}</div>
               </Card>
             </Section>
             <Card style={{ overflow:"auto", padding:0 }}>
@@ -335,8 +335,8 @@ export default function Dashboard() {
               </table>
             </Card>
             <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:14 }}>
-              <Callout color={C.green} icon="\u2b50" title="Model Rep: Rachel Kim" text="75% win rate (3/4) on target accounts with zero stalled deals and clean pipeline. Study her qualification criteria, engagement cadence, and deal approach as a model for the team." />
-              <Callout color={C.red} icon="\ud83d\udea8" title="Intervention Needed" text="Tyler Brooks (9 stalled, 33% WR), Ryan Mitchell (8 stalled, 10% WR), and Marcus Williams (0% WR, 0/8) collectively carry $2.75M in open pipeline that needs immediate review." />
+              <Callout color={C.green} icon="⭐" title="Model Rep: Rachel Kim" text="75% win rate (3/4) on target accounts with zero stalled deals and clean pipeline. Study her qualification criteria, engagement cadence, and deal approach as a model for the team." />
+              <Callout color={C.red} icon="🚨" title="Intervention Needed" text="Tyler Brooks (9 stalled, 33% WR), Ryan Mitchell (8 stalled, 10% WR), and Marcus Williams (0% WR, 0/8) collectively carry $2.75M in open pipeline that needs immediate review." />
             </div>
           </div>
         )}
@@ -346,7 +346,7 @@ export default function Dashboard() {
             <Section title="Strategic Recommendations" sub="Five actions for the CRO based on the data. Ordered by expected impact.">
               {[
                 { num:"1", title:"Rebuild Platinum selection criteria or sunset the tier", detail:"Platinum Enterprise EV/opp ($7.8K) is half of what non-targeted accounts produce. Either raise the qualification bar (firmer ICP fit, higher intent thresholds) or reallocate those ABM dollars toward expanding the Diamond list with accounts that match the Diamond profile.", impact:"High", color:C.red, finding:"Platinum EV = 0.50x benchmark" },
-                { num:"2", title:"Institute a 48-hour SLA on target-account MQL follow-up", detail:"The 25 engaged-but-no-opportunity target accounts should be immediately assigned and contacted. Implement a weekly handoff review between marketing and sales leadership to track MQL-to-opportunity conversion by rep.", impact:"High", color:C.amber, finding:"25 stranded accounts, 22% MQL\u2192Opp rate" },
+                { num:"2", title:"Institute a 48-hour SLA on target-account MQL follow-up", detail:"The 25 engaged-but-no-opportunity target accounts should be immediately assigned and contacted. Implement a weekly handoff review between marketing and sales leadership to track MQL-to-opportunity conversion by rep.", impact:"High", color:C.amber, finding:"25 stranded accounts, 22% MQL→Opp rate" },
                 { num:"3", title:"Audit SD Outbound process on target accounts", detail:"0/13 closed is not variance. Require SD-sourced target deals to pass the same qualification criteria as BDR-sourced deals before entering pipeline. BDR closes at 37% on the same target accounts.", impact:"High", color:C.red, finding:"SD Outbound = 0% WR vs. BDR = 37%" },
                 { num:"4", title:"Targeted rep coaching on stalled pipeline", detail:"Tyler Brooks and Ryan Mitchell carry 50% of all stalled target deals. Implement 30-day stage disposition deadlines: advance, disqualify, or return to marketing for re-nurture.", impact:"Medium", color:C.amber, finding:"Brooks (9) + Mitchell (8) = 17 of 34 stalls" },
                 { num:"5", title:"Mine Non-Target Inbound wins for ABM list expansion", detail:"Profile the 8 Non-Target Inbound wins (40% WR) for firmographic and behavioral patterns that should be added to Diamond targeting criteria. These accounts are self-selecting with high intent.", impact:"Medium", color:C.green, finding:"Non-Target Inbound = 40% WR (8/20)" },
@@ -355,9 +355,9 @@ export default function Dashboard() {
             <Section title="Key Ongoing Metrics" sub="Three metrics to monitor ABM health on an ongoing basis.">
               <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit, minmax(280px, 1fr))", gap:12 }}>
                 {[
-                  { metric:"ABM Expected Value Premium", formula:"Target EV/opp \u00f7 Non-Target EV/opp", frequency:"Quarterly, segment-controlled", current:"Diamond = 1.55x (strong) \u00b7 Platinum = 0.50x (failing)", why:"Combines win rate and deal size into one efficiency metric. Isolates ABM\u2019s incremental value from segment mix." },
-                  { metric:"Target MQL-to-Opportunity Rate", formula:"Target MQLs with pipeline \u00f7 Total target MQLs", frequency:"Weekly, by rep", current:"22% vs. 30% benchmark", why:"Leading indicator of handoff health. Surfaces breakdowns before they impact quarterly pipeline." },
-                  { metric:"Stalled Deal Ratio by Rep", formula:"Deals >21 days in stage \u00f7 Total open deals, per rep", frequency:"Biweekly", current:"33% overall; Brooks 53%, Mitchell 62%", why:"Creates rep-level accountability for pipeline hygiene without waiting for lost-deal postmortems." },
+                  { metric:"ABM Expected Value Premium", formula:"Target EV/opp ÷ Non-Target EV/opp", frequency:"Quarterly, segment-controlled", current:"Diamond = 1.55x (strong) · Platinum = 0.50x (failing)", why:"Combines win rate and deal size into one efficiency metric. Isolates ABM’s incremental value from segment mix." },
+                  { metric:"Target MQL-to-Opportunity Rate", formula:"Target MQLs with pipeline ÷ Total target MQLs", frequency:"Weekly, by rep", current:"22% vs. 30% benchmark", why:"Leading indicator of handoff health. Surfaces breakdowns before they impact quarterly pipeline." },
+                  { metric:"Stalled Deal Ratio by Rep", formula:"Deals >21 days in stage ÷ Total open deals, per rep", frequency:"Biweekly", current:"33% overall; Brooks 53%, Mitchell 62%", why:"Creates rep-level accountability for pipeline hygiene without waiting for lost-deal postmortems." },
                 ].map((m,i)=>(<Card key={i} style={{ borderTop:`3px solid ${C.accent}` }}><h4 style={{ margin:"0 0 6px", fontSize:13, fontWeight:700, color:C.accent }}>{m.metric}</h4><div style={{ fontSize:11, color:C.muted, marginBottom:4 }}><span style={{ fontWeight:600 }}>Formula:</span> {m.formula}</div><div style={{ fontSize:11, color:C.muted, marginBottom:4 }}><span style={{ fontWeight:600 }}>Frequency:</span> {m.frequency}</div><div style={{ fontSize:11, color:C.amber, marginBottom:6 }}><span style={{ fontWeight:600 }}>Current:</span> {m.current}</div><div style={{ fontSize:11, color:C.text, lineHeight:1.5, borderTop:`1px solid ${C.border}`, paddingTop:6 }}>{m.why}</div></Card>))}
               </div>
             </Section>
@@ -366,18 +366,18 @@ export default function Dashboard() {
                 {[
                   { gap:"ABM spend by tier and account", build:"Cost-per-qualified-opportunity and cost-per-closed-won by tier. Would pressure-test the Platinum reallocation recommendation and size the Diamond expansion opportunity." },
                   { gap:"Full stage timestamps", build:"Stage-by-stage velocity waterfall to pinpoint exactly where deals stall. True sales cycle duration for open pipeline to improve forecast accuracy." },
-                  { gap:"Closed Lost reason codes", build:"Root-cause diagnosis for Platinum\u2019s 35.8% loss rate. Competitive losses = targeting fix. Pricing = packaging fix. Timing = nurture fix." },
-                  { gap:"Multi-touch campaign attribution", build:"ABM campaign sequence analysis. Which plays (LinkedIn \u2192 webinar \u2192 BDR) produce pipeline vs. single-touch exposure." },
+                  { gap:"Closed Lost reason codes", build:"Root-cause diagnosis for Platinum’s 35.8% loss rate. Competitive losses = targeting fix. Pricing = packaging fix. Timing = nurture fix." },
+                  { gap:"Multi-touch campaign attribution", build:"ABM campaign sequence analysis. Which plays (LinkedIn → webinar → BDR) produce pipeline vs. single-touch exposure." },
                 ].map((d,i)=>(<Card key={i}><h4 style={{ margin:"0 0 6px", fontSize:13, fontWeight:700, color:C.text }}>{d.gap}</h4><div style={{ fontSize:12, color:C.muted, lineHeight:1.5 }}><span style={{ fontWeight:600, color:C.accent }}>What I'd build:</span> {d.build}</div></Card>))}
               </div>
             </Section>
-            <Callout color={C.accent} icon="\ud83d\udcca" title="30-Day Deliverable" text="If hired, my first deliverable would be a weekly ABM Health Scorecard integrating these three metrics with pipeline coverage ratios and rep-level accountability views, built to surface problems before they hit the quarterly number." />
+            <Callout color={C.accent} icon="📊" title="30-Day Deliverable" text="If hired, my first deliverable would be a weekly ABM Health Scorecard integrating these three metrics with pipeline coverage ratios and rep-level accountability views, built to surface problems before they hit the quarterly number." />
           </div>
         )}
 
         <div style={{ marginTop:28, padding:"12px 0", borderTop:`1px solid ${C.border}`, display:"flex", justifyContent:"space-between" }}>
           <span style={{ fontSize:10, color:C.muted }}>Data: Camalytics Q1/Q2 2026 pipeline, account activity, and historical benchmarks. Companion to written memo.</span>
-          <span style={{ fontSize:10, color:C.muted }}>Bradley Hartnett \u00b7 Senior Sales Revenue Analyst Case Study</span>
+          <span style={{ fontSize:10, color:C.muted }}>Bradley Hartnett · Senior Sales Revenue Analyst Case Study</span>
         </div>
       </div>
     </div>
