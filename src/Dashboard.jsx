@@ -68,6 +68,38 @@ const repDataRaw = [
 
 const benchmarks = { Enterprise: { winRate:18, asp:85000, ev:15300, cycle:62 }, "Mid-Market": { winRate:22, asp:48000, ev:10560, cycle:45 }, s0s1:68, s1s2:55, s2cw:40, mqlOpp:30 };
 
+
+const tierProbs = {
+  Diamond: { "0-Discovery": 0.164, "1-Qualified": 0.180, "2-Proposal": 0.486, "3-Negotiation": 0.669, "4-Contract Sent": 0.912 },
+  Platinum: { "0-Discovery": 0.081, "1-Qualified": 0.097, "2-Proposal": 0.286, "3-Negotiation": 0.393, "4-Contract Sent": 0.536 },
+  "Non-Target": { "0-Discovery": 0.183, "1-Qualified": 0.210, "2-Proposal": 0.471, "3-Negotiation": 0.647, "4-Contract Sent": 0.882 },
+};
+const benchProbs = { "0-Discovery": 0.150, "1-Qualified": 0.220, "2-Proposal": 0.400, "3-Negotiation": 0.550, "4-Contract Sent": 0.750 };
+
+const pipelineByTierStage = [
+  { tier:"Diamond", stage:"0-Discovery", deals:9, raw:729000, prob:0.164, weighted:119387 },
+  { tier:"Diamond", stage:"1-Qualified", deals:30, raw:2544000, prob:0.180, weighted:457382 },
+  { tier:"Diamond", stage:"2-Proposal", deals:2, raw:208000, prob:0.486, weighted:101189 },
+  { tier:"Diamond", stage:"3-Negotiation", deals:7, raw:520000, prob:0.669, weighted:347838 },
+  { tier:"Diamond", stage:"4-Contract Sent", deals:16, raw:1346000, prob:0.912, weighted:1227770 },
+  { tier:"Platinum", stage:"0-Discovery", deals:11, raw:704000, prob:0.081, weighted:57041 },
+  { tier:"Platinum", stage:"1-Qualified", deals:13, raw:735000, prob:0.097, weighted:71250 },
+  { tier:"Platinum", stage:"2-Proposal", deals:2, raw:109000, prob:0.286, weighted:31143 },
+  { tier:"Platinum", stage:"3-Negotiation", deals:7, raw:416000, prob:0.393, weighted:163429 },
+  { tier:"Platinum", stage:"4-Contract Sent", deals:6, raw:324000, prob:0.536, weighted:173571 },
+  { tier:"Non-Target", stage:"0-Discovery", deals:20, raw:962000, prob:0.183, weighted:175721 },
+  { tier:"Non-Target", stage:"1-Qualified", deals:34, raw:1866000, prob:0.210, weighted:392492 },
+  { tier:"Non-Target", stage:"2-Proposal", deals:17, raw:817000, prob:0.471, weighted:384471 },
+  { tier:"Non-Target", stage:"3-Negotiation", deals:16, raw:755000, prob:0.647, weighted:488529 },
+  { tier:"Non-Target", stage:"4-Contract Sent", deals:14, raw:669000, prob:0.882, weighted:590294 },
+];
+
+const pipelineSummary = [
+  { tier:"Diamond", raw:5347000, weighted:2253566, pctOfRaw:42, benchWeighted:2047438, delta:206127 },
+  { tier:"Platinum", raw:2288000, weighted:496433, pctOfRaw:22, benchWeighted:782418, delta:-285985 },
+  { tier:"Non-Target", raw:5069000, weighted:2031507, pctOfRaw:40, benchWeighted:1798235, delta:233272 },
+];
+
 const funnelDetail = {
   engagedNoOpp: [
     { label:"Diamond accounts", value:"12", detail:"Highest-priority targets with zero pipeline" },
@@ -117,6 +149,7 @@ const TT = ({ active, payload }) => { if (!active||!payload?.length) return null
 const tabs = [
   { id:"overview", label:"Overview", icon:"📊" },
   { id:"targeting", label:"Targeting", icon:"🎯" },
+  { id:"pipeline", label:"Pipeline Value", icon:"💰" },
   { id:"source", label:"Source Channel", icon:"📡" },
   { id:"funnel", label:"Funnel Leakage", icon:"🔗" },
   { id:"reps", label:"Rep Performance", icon:"👥" },
@@ -253,6 +286,107 @@ export default function Dashboard() {
               </Card>
             </Section>
             <Callout color={C.amber} icon="⏱️" title="Sales Cycle Elongation" text="Diamond Enterprise won deals averaged 103 days vs. the 62-day pre-ABM benchmark (66% longer). Platinum Enterprise averaged 106 days. While larger deals naturally take longer, this degree of elongation warrants investigation into whether deal qualification standards, buyer committee dynamics, or sales process has changed alongside the ABM shift." />
+          </div>
+        )}
+
+
+        {tab === "pipeline" && (
+          <div style={{ display:"flex", flexDirection:"column", gap:16 }}>
+            <Callout color={C.accent} icon="📐" title="Methodology"
+              text="Close probabilities are calculated using observed stage-to-stage conversion rates and win rates from the current dataset, applied by tier. This produces tier-adjusted forecasts that reflect actual ABM performance rather than generic benchmarks. A naive forecast using benchmark-only probabilities would overvalue Platinum pipeline by $286K and undervalue Diamond by $206K." />
+            <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit, minmax(220px, 1fr))", gap:10 }}>
+              <Metric label="Total Raw Pipeline" value="$12.7M" sub="204 open deals" color={C.accent} />
+              <Metric label="Probability-Weighted" value="$4.78M" sub="38% of raw (tier-adjusted)" color={C.amber} />
+              <Metric label="Platinum Overvaluation" value="$286K" sub="Using benchmark vs. actual rates" color={C.red} />
+            </div>
+
+            <Section title="Probability-Weighted Pipeline by Tier" sub="Tier-specific close probabilities vs. generic benchmark probabilities. The delta reveals forecasting risk.">
+              <Card style={{ overflow:"auto", padding:0 }}>
+                <table style={{ width:"100%", borderCollapse:"collapse", fontSize:12 }}>
+                  <thead><tr style={{ borderBottom:\`2px solid \${C.border}\` }}>
+                    {["Tier","Raw Pipeline","Close Prob (Avg)","Tier-Weighted","Benchmark-Weighted","Delta","% of Raw"].map(h=>(
+                      <th key={h} style={{ padding:"10px 12px", textAlign:"left", color:C.muted, fontWeight:700, fontSize:10, textTransform:"uppercase", letterSpacing:"0.5px" }}>{h}</th>
+                    ))}
+                  </tr></thead>
+                  <tbody>
+                    {pipelineSummary.map((d,i)=>(
+                      <tr key={i} style={{ borderBottom:\`1px solid \${C.border}15\` }}>
+                        <td style={{ padding:"8px 12px" }}><TierDot tier={d.tier} /></td>
+                        <td style={{ padding:"8px 12px", fontWeight:600 }}>{fmtFull(d.raw)}</td>
+                        <td style={{ padding:"8px 12px", color:C.muted }}>{d.pctOfRaw}%</td>
+                        <td style={{ padding:"8px 12px", fontWeight:700, color:d.tier==="Platinum"?C.red:C.green }}>{fmtFull(d.weighted)}</td>
+                        <td style={{ padding:"8px 12px", color:C.muted }}>{fmtFull(d.benchWeighted)}</td>
+                        <td style={{ padding:"8px 12px", fontWeight:700, color:d.delta>=0?C.green:C.red }}>{d.delta>=0?"+":""}${(d.delta/1000).toFixed(0)}K</td>
+                        <td style={{ padding:"8px 12px", color:d.pctOfRaw<30?C.red:C.text }}>{d.pctOfRaw}%</td>
+                      </tr>
+                    ))}
+                    <tr style={{ borderTop:\`2px solid \${C.border}\`, background:\`\${C.accent}08\` }}>
+                      <td style={{ padding:"8px 12px", fontWeight:700 }}>Total</td>
+                      <td style={{ padding:"8px 12px", fontWeight:700 }}>$12,704,000</td>
+                      <td style={{ padding:"8px 12px", color:C.muted }}>38%</td>
+                      <td style={{ padding:"8px 12px", fontWeight:700 }}>$4,781,507</td>
+                      <td style={{ padding:"8px 12px", color:C.muted }}>$4,628,092</td>
+                      <td style={{ padding:"8px 12px", fontWeight:700, color:C.green }}>+$153K</td>
+                      <td style={{ padding:"8px 12px" }}>38%</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </Card>
+            </Section>
+
+            <Section title="Stage-Level Close Probabilities by Tier" sub="Observed conversion rates applied to each stage. Platinum's probability collapses at every stage.">
+              <Card>
+                <ResponsiveContainer width="100%" height={280}>
+                  <BarChart data={(() => {
+                    const stages = ["0-Discovery","1-Qualified","2-Proposal","3-Negotiation","4-Contract Sent"];
+                    return stages.map(s => ({
+                      stage: s.replace(/^\d-/, ""),
+                      Diamond: Math.round(tierProbs.Diamond[s]*100),
+                      Platinum: Math.round(tierProbs.Platinum[s]*100),
+                      "Non-Target": Math.round(tierProbs["Non-Target"][s]*100),
+                      Benchmark: Math.round(benchProbs[s]*100),
+                    }));
+                  })()} barCategoryGap="18%">
+                    <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
+                    <XAxis dataKey="stage" tick={{ fill:C.muted, fontSize:10 }} />
+                    <YAxis domain={[0,100]} tick={{ fill:C.muted, fontSize:11 }} tickFormatter={v=>\`\${v}%\`} />
+                    <Tooltip content={<TT />} />
+                    <Legend wrapperStyle={{ fontSize:11 }} />
+                    <Bar dataKey="Diamond" fill={C.diamond} radius={[3,3,0,0]} />
+                    <Bar dataKey="Platinum" fill={C.platinum} radius={[3,3,0,0]} />
+                    <Bar dataKey="Non-Target" fill={C.nonTarget} radius={[3,3,0,0]} />
+                    <Bar dataKey="Benchmark" fill={C.amber} opacity={0.35} radius={[3,3,0,0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </Card>
+            </Section>
+
+            <Section title="Pipeline Detail by Tier × Stage" sub="Raw value, close probability, and weighted value for every tier-stage combination.">
+              <Card style={{ overflow:"auto", padding:0 }}>
+                <table style={{ width:"100%", borderCollapse:"collapse", fontSize:12 }}>
+                  <thead><tr style={{ borderBottom:\`2px solid \${C.border}\` }}>
+                    {["Tier","Stage","Deals","Raw Value","Close Prob","Weighted Value"].map(h=>(
+                      <th key={h} style={{ padding:"8px 10px", textAlign:"left", color:C.muted, fontWeight:700, fontSize:10, textTransform:"uppercase" }}>{h}</th>
+                    ))}
+                  </tr></thead>
+                  <tbody>
+                    {pipelineByTierStage.map((d,i)=>(
+                      <tr key={i} style={{ borderBottom:\`1px solid \${C.border}10\`, background:d.tier==="Platinum"?\`\${C.purple}05\`:"transparent" }}>
+                        <td style={{ padding:"6px 10px" }}><TierDot tier={d.tier} /></td>
+                        <td style={{ padding:"6px 10px", color:C.muted, fontSize:11 }}>{d.stage}</td>
+                        <td style={{ padding:"6px 10px", color:C.text }}>{d.deals}</td>
+                        <td style={{ padding:"6px 10px", color:C.muted }}>{fmtFull(d.raw)}</td>
+                        <td style={{ padding:"6px 10px", fontWeight:600, color:d.prob>=0.5?C.green:d.prob>=0.2?C.amber:C.red }}>{(d.prob*100).toFixed(1)}%</td>
+                        <td style={{ padding:"6px 10px", fontWeight:600 }}>{fmtFull(d.weighted)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </Card>
+            </Section>
+
+            <Callout color={C.red} icon="⚠️" title="Forecasting Risk: Platinum Pipeline"
+              text="Platinum's $2.29M in raw pipeline converts to just $496K at observed probabilities (22% of raw). A Contract Sent deal in Platinum has only a 54% close probability vs. 91% for Diamond. If the forecast treats all tiers equally, it is overweighting Platinum by $286K. This directly impacts quarterly commit accuracy." />
           </div>
         )}
 
