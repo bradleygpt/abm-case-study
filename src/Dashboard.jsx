@@ -303,14 +303,14 @@ export default function Dashboard() {
             <Section title="Probability-Weighted Pipeline by Tier" sub="Tier-specific close probabilities vs. generic benchmark probabilities. The delta reveals forecasting risk.">
               <Card style={{ overflow:"auto", padding:0 }}>
                 <table style={{ width:"100%", borderCollapse:"collapse", fontSize:12 }}>
-                  <thead><tr style={{ borderBottom:\`2px solid \${C.border}\` }}>
+                  <thead><tr style={{ borderBottom:`2px solid ${C.border}` }}>
                     {["Tier","Raw Pipeline","Close Prob (Avg)","Tier-Weighted","Benchmark-Weighted","Delta","% of Raw"].map(h=>(
                       <th key={h} style={{ padding:"10px 12px", textAlign:"left", color:C.muted, fontWeight:700, fontSize:10, textTransform:"uppercase", letterSpacing:"0.5px" }}>{h}</th>
                     ))}
                   </tr></thead>
                   <tbody>
                     {pipelineSummary.map((d,i)=>(
-                      <tr key={i} style={{ borderBottom:\`1px solid \${C.border}15\` }}>
+                      <tr key={i} style={{ borderBottom:`1px solid ${C.border}15` }}>
                         <td style={{ padding:"8px 12px" }}><TierDot tier={d.tier} /></td>
                         <td style={{ padding:"8px 12px", fontWeight:600 }}>{fmtFull(d.raw)}</td>
                         <td style={{ padding:"8px 12px", color:C.muted }}>{d.pctOfRaw}%</td>
@@ -320,7 +320,7 @@ export default function Dashboard() {
                         <td style={{ padding:"8px 12px", color:d.pctOfRaw<30?C.red:C.text }}>{d.pctOfRaw}%</td>
                       </tr>
                     ))}
-                    <tr style={{ borderTop:\`2px solid \${C.border}\`, background:\`\${C.accent}08\` }}>
+                    <tr style={{ borderTop:`2px solid ${C.border}`, background:`${C.accent}08` }}>
                       <td style={{ padding:"8px 12px", fontWeight:700 }}>Total</td>
                       <td style={{ padding:"8px 12px", fontWeight:700 }}>$12,704,000</td>
                       <td style={{ padding:"8px 12px", color:C.muted }}>38%</td>
@@ -349,7 +349,7 @@ export default function Dashboard() {
                   })()} barCategoryGap="18%">
                     <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
                     <XAxis dataKey="stage" tick={{ fill:C.muted, fontSize:10 }} />
-                    <YAxis domain={[0,100]} tick={{ fill:C.muted, fontSize:11 }} tickFormatter={v=>\`\${v}%\`} />
+                    <YAxis domain={[0,100]} tick={{ fill:C.muted, fontSize:11 }} tickFormatter={v=>`${v}%`} />
                     <Tooltip content={<TT />} />
                     <Legend wrapperStyle={{ fontSize:11 }} />
                     <Bar dataKey="Diamond" fill={C.diamond} radius={[3,3,0,0]} />
@@ -364,14 +364,14 @@ export default function Dashboard() {
             <Section title="Pipeline Detail by Tier × Stage" sub="Raw value, close probability, and weighted value for every tier-stage combination.">
               <Card style={{ overflow:"auto", padding:0 }}>
                 <table style={{ width:"100%", borderCollapse:"collapse", fontSize:12 }}>
-                  <thead><tr style={{ borderBottom:\`2px solid \${C.border}\` }}>
+                  <thead><tr style={{ borderBottom:`2px solid ${C.border}` }}>
                     {["Tier","Stage","Deals","Raw Value","Close Prob","Weighted Value"].map(h=>(
                       <th key={h} style={{ padding:"8px 10px", textAlign:"left", color:C.muted, fontWeight:700, fontSize:10, textTransform:"uppercase" }}>{h}</th>
                     ))}
                   </tr></thead>
                   <tbody>
                     {pipelineByTierStage.map((d,i)=>(
-                      <tr key={i} style={{ borderBottom:\`1px solid \${C.border}10\`, background:d.tier==="Platinum"?\`\${C.purple}05\`:"transparent" }}>
+                      <tr key={i} style={{ borderBottom:`1px solid ${C.border}10`, background:d.tier==="Platinum"?`${C.platinum}05`:"transparent" }}>
                         <td style={{ padding:"6px 10px" }}><TierDot tier={d.tier} /></td>
                         <td style={{ padding:"6px 10px", color:C.muted, fontSize:11 }}>{d.stage}</td>
                         <td style={{ padding:"6px 10px", color:C.text }}>{d.deals}</td>
