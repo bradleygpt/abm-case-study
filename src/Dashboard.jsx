@@ -106,8 +106,8 @@ const funnelDetail = {
     { label:"Platinum accounts", value:"13", detail:"Marketing investment with no conversion" },
     { label:"Enterprise segment", value:"20 of 25", detail:"80% are high-value Enterprise accounts" },
     { label:"ABM campaign sourced", value:"22 of 25", detail:"Direct ABM spend, not organic discovery" },
-    { label:"Avg marketing touches", value:"16", detail:"Significant investment per account" },
-    { label:"Avg intent score", value:"59", detail:"Active buying signals present" },
+    { label:"Avg marketing touches", value:"16.0", detail:"vs. 12.3 for accounts WITH pipeline" },
+    { label:"Avg intent score", value:"59", detail:"vs. 56.1 for accounts WITH pipeline" },
     { label:"Accounts with MQL date", value:"25 of 25", detail:"100% met qualification criteria" },
   ],
   stallByStage: [
@@ -399,6 +399,39 @@ export default function Dashboard() {
               {sourceTable.map(({ tierGroup, rows })=>(<Card key={tierGroup}><h4 style={{ margin:"0 0 10px", fontSize:13, fontWeight:700, color:C.muted }}>{tierGroup} Accounts{isFiltered?` (${seg})`:""}</h4><ResponsiveContainer width="100%" height={200}><BarChart data={rows} layout="vertical" barCategoryGap="18%"><CartesianGrid strokeDasharray="3 3" stroke={C.border} horizontal={false} /><XAxis type="number" domain={[0,50]} tick={{ fill:C.muted, fontSize:11 }} tickFormatter={v=>`${v}%`} /><YAxis type="category" dataKey="source" tick={{ fill:C.muted, fontSize:11 }} width={95} /><Tooltip content={<TT />} /><Bar dataKey="wr" name="Win Rate" radius={[0,4,4,0]}>{rows.map((d,i)=><Cell key={i} fill={d.wr===0?C.red:d.wr>=30?C.green:C.amber} />)}</Bar></BarChart></ResponsiveContainer></Card>))}
             </div>
             <Callout color={C.red} icon="🚨" title="MEMO FINDING: SD Outbound 0% Win Rate on Target Accounts" text="SD Outbound has closed 0 of 13 target-account deals while BDR Outbound closes at 37% on the same accounts. This is not variance. SD-sourced deals likely lack the qualification rigor that BDR process enforces, or SD reps are pursuing off-profile accounts within the target list." />
+
+            <Section title="Campaign-Level Performance (Dataset B)" sub="Pipeline conversion and wins by specific campaign. LinkedIn ABM (core paid plays) underperform Google Paid Search and ABM Display on wins.">
+              <Card style={{ overflow:"auto", padding:0 }}>
+                <table style={{ width:"100%", borderCollapse:"collapse", fontSize:12 }}>
+                  <thead><tr style={{ borderBottom:`2px solid ${C.border}` }}>
+                    {["Campaign","Accounts","With Pipeline","Conv. %","Won Deals"].map(h=>(
+                      <th key={h} style={{ padding:"8px 12px", textAlign:"left", color:C.muted, fontWeight:700, fontSize:10, textTransform:"uppercase" }}>{h}</th>
+                    ))}
+                  </tr></thead>
+                  <tbody>
+                    {[
+                      { campaign:"ABM Display - Retarget", accts:16, pipeline:12, pct:75, won:4, color:C.green },
+                      { campaign:"Google Paid Search - Competitor", accts:9, pipeline:7, pct:78, won:4, color:C.green },
+                      { campaign:"GTM Play - Enterprise", accts:17, pipeline:13, pct:76, won:1, color:C.amber },
+                      { campaign:"Email - Product Launch", accts:14, pipeline:11, pct:79, won:1, color:C.amber },
+                      { campaign:"LinkedIn ABM - Q3", accts:15, pipeline:9, pct:60, won:1, color:C.red },
+                      { campaign:"LinkedIn ABM - Q4", accts:13, pipeline:8, pct:62, won:1, color:C.red },
+                      { campaign:"Organic Blog - Analytics", accts:5, pipeline:5, pct:100, won:3, color:C.green },
+                    ].map((d,i)=>(
+                      <tr key={i} style={{ borderBottom:`1px solid ${C.border}15` }}>
+                        <td style={{ padding:"6px 12px", fontWeight:600 }}>{d.campaign}</td>
+                        <td style={{ padding:"6px 12px", color:C.muted }}>{d.accts}</td>
+                        <td style={{ padding:"6px 12px", color:C.text }}>{d.pipeline}</td>
+                        <td style={{ padding:"6px 12px", color:d.pct>=75?C.green:d.pct>=65?C.amber:C.red, fontWeight:600 }}>{d.pct}%</td>
+                        <td style={{ padding:"6px 12px", fontWeight:700, color:d.won>=3?C.green:d.won>=2?C.amber:C.text }}>{d.won}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </Card>
+            </Section>
+
+            <Callout color={C.amber} icon="📡" title="MEMO FINDING: ABM Playbook Rebalancing" text="LinkedIn ABM campaigns (the core paid ABM plays) convert only 60-62% of accounts to pipeline with 1 win each. ABM Display Retargeting and Google Paid Search produce 4 wins each from fewer accounts. Organic Blog content converts 100% to pipeline with 3 wins from 5 accounts. The ABM playbook should shift investment toward higher-converting channels." />
             <Callout color={C.green} icon="💡" title="MEMO FINDING: Non-Target Inbound at 40% WR" text="Non-Target Inbound accounts close at 40% (8/20), nearly double the Mid-Market benchmark. These accounts are self-selecting with high buying intent. Recommendation: profile these 8 wins for firmographic and behavioral patterns to inform ABM list expansion." />
           </div>
         )}
@@ -441,6 +474,7 @@ export default function Dashboard() {
                 </Card>
               </div>
             </div>
+            <Callout color={C.red} icon="🔥" title="MEMO FINDING: The Engagement Paradox" text="The 25 stranded accounts show HIGHER engagement than accounts that do have pipeline: 16.0 avg touches vs. 12.3, and 59 avg intent score vs. 56.1. Sales is not just missing these accounts — it is systematically ignoring the most engaged ones. This transforms the handoff gap from 'missed accounts' to 'inverted prioritization.'" />
             <Callout color={C.amber} icon="📋" title="MEMO FINDING: Handoff is the #1 Operational Gap" text="Marketing is generating demand (25 MQLed, campaign-engaged target accounts). Sales is not converting it. This is the single most actionable finding. Institute a 48-hour SLA on target-account MQL follow-up and run a weekly handoff review between marketing and sales leadership." />
           </div>
         )}
